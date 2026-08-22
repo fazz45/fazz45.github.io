@@ -51,15 +51,24 @@ test("server-renders the finished portfolio", async () => {
   assert.match(html, /Position-based visual servoing/);
   assert.match(html, /100 Hz PBVS controller/);
   assert.match(html, /Orocos KDL/);
-  assert.equal((html.match(/<video\b/g) ?? []).length, 5);
+  assert.match(html, /Language-Conditioned VLA Fine-Tuning for Robotic Kitting/);
+  assert.match(html, /SmolVLA/);
+  assert.match(html, /held-out ID success/);
+  assert.match(html, /Sampling-Based Motion Planning for a 6-DOF UR5 Manipulator/);
+  assert.match(html, /Probabilistic Roadmap/);
+  assert.match(html, /planning time/);
+  assert.equal((html.match(/<video\b/g) ?? []).length, 6);
   assert.match(html, /Fazil-Cinematic-Hero-Reel-8s\.mp4/);
   assert.match(html, /mobile-manipulation-preview\.mp4/);
   assert.match(html, /rough-terrain-preview\.mp4/);
   assert.match(html, /semantic-slam-preview\.mp4/);
   assert.match(html, /visual-servoing-preview\.mp4/);
+  assert.match(html, /vla-kitting-preview\.mp4/);
+  assert.match(html, /motion-planning-preview\.png/);
   assert.match(html, /https:\/\/github\.com\/dghiya\/TB4_Project/);
   assert.match(html, /https:\/\/github\.com\/fazz45\/jhu_rl_project/);
   assert.match(html, /https:\/\/github\.com\/fazz45\/cv-project-f24/);
+  assert.match(html, /https:\/\/github\.com\/fazz45\/language-conditioned-vla-kitting/);
   assert.match(html, /MRI-guided robotic needle steering/);
   assert.match(html, /02 \/ Experience &amp; trajectory/);
   assert.match(html, /View experience/);
@@ -100,6 +109,9 @@ test("ships the essential static portfolio assets", async () => {
     access(new URL("../public/project-videos/semantic-slam-poster.webp", import.meta.url)),
     access(new URL("../public/project-videos/visual-servoing-preview.mp4", import.meta.url)),
     access(new URL("../public/project-videos/visual-servoing-poster.webp", import.meta.url)),
+    access(new URL("../public/project-videos/vla-kitting-preview.mp4", import.meta.url)),
+    access(new URL("../public/project-videos/vla-kitting-poster.webp", import.meta.url)),
+    access(new URL("../public/project-videos/motion-planning-preview.png", import.meta.url)),
   ]);
 
   assert.match(page, /fazil-lab-hero\.png/);
@@ -120,8 +132,11 @@ test("ships the essential static portfolio assets", async () => {
   assert.match(page, /className="hero-credentials/);
   assert.match(styles, /\.hero-credentials/);
   assert.match(styles, /\.project-preview-video/);
+  assert.match(styles, /\.project-preview-image/);
   assert.match(styles, /\.repository-link/);
   assert.match(styles, /\.visual-servoing/);
+  assert.match(styles, /\.visual-vla/);
+  assert.match(styles, /\.visual-motion-planning/);
   assert.doesNotMatch(page, /Baltimore|[—–]/);
   assert.match(layout, /Fazil Khan — Robotics, Perception & Autonomy/);
 });

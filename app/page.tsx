@@ -16,6 +16,7 @@ type Project = {
   visual: string;
   previewVideo?: string;
   previewPoster?: string;
+  previewImage?: string;
   repositoryUrl?: string;
   problem: string;
   approach: string;
@@ -160,6 +161,66 @@ const projects: Project[] = [
       "Built a custom C++ ros2_control velocity-controller plugin running at 100 Hz. It computes Cartesian twist error from eye-in-hand ArUco poses and maps it to joint velocity through an Orocos KDL Jacobian pseudo-inverse, with lock-free buffers, saturation, clamping, and lifecycle-managed states. A RealSense D435 model in URDF/Xacro and ros_gz_bridge supplied the simulated pose stream.",
     outcome:
       "Achieved 100% target-convergence success and reproduced the Gazebo result on the physical UR5e without code changes through parameterized launch backends for simulation, mock hardware, and the UR ROS 2 driver.",
+  },
+  {
+    id: "vla-kitting",
+    index: "06",
+    title: "Language-Conditioned VLA Fine-Tuning for Robotic Kitting",
+    eyebrow: "Vision-language-action robot learning",
+    summary:
+      "A fully local VLA pipeline that conditions a Franka Panda on RGB observations, robot state, and natural-language instructions to complete robotic kitting tasks in MuJoCo.",
+    date: "Oct 2025",
+    metric: "60%",
+    metricLabel: "held-out ID success",
+    categories: ["Perception", "Robot Learning"],
+    tags: [
+      "SmolVLA",
+      "LeRobot",
+      "MuJoCo",
+      "DAgger",
+      "Franka Panda",
+      "Cartesian IK",
+    ],
+    visual: "visual-vla",
+    previewVideo: "project-videos/vla-kitting-preview.mp4",
+    previewPoster: "project-videos/vla-kitting-poster.webp",
+    repositoryUrl: "https://github.com/fazz45/language-conditioned-vla-kitting",
+    problem:
+      "Ground natural-language instructions in the correct colored-block and tray pairing while learning reliable manipulation from vision and robot state.",
+    approach:
+      "Built a fully local MuJoCo pipeline around a Franka Panda and Cartesian inverse-kinematics expert, recorded 600 LeRobot episodes and 70K frames including 200 DAgger recovery episodes, then fine-tuned SmolVLA’s 99.9M-parameter action expert on oblique RGB, joint state, gripper width, and language.",
+    outcome:
+      "Used deterministic checkpoint selection and ran 400 fixed-seed ID/OOD rollouts with Wilson confidence intervals, wrong-object detection, paired instruction ablations, latency profiling, and rollout-video generation. The IK expert reached 98.5% success across 200 scenes, while the fine-tuned policy achieved 60% held-out ID task success.",
+  },
+  {
+    id: "motion-planning",
+    index: "07",
+    title: "Sampling-Based Motion Planning for a 6-DOF UR5 Manipulator",
+    eyebrow: "Sampling-based motion planning",
+    summary:
+      "A custom C++ Probabilistic Roadmap planner in ROS 2 and MoveIt that generates collision-free joint-space motions for a 6-DOF UR5 manipulator.",
+    date: "May 2025",
+    metric: "<10 s",
+    metricLabel: "planning time",
+    categories: ["Control", "Autonomy"],
+    tags: [
+      "C++",
+      "ROS 2",
+      "MoveIt",
+      "PRM",
+      "kNN",
+      "A*",
+      "Collision checking",
+      "UR5",
+    ],
+    visual: "visual-motion-planning",
+    previewImage: "project-videos/motion-planning-preview.png",
+    problem:
+      "Plan collision-free start-to-goal motions for a 6-DOF UR5 through cluttered environments, including a tight-clearance car-door ingress scene.",
+    approach:
+      "Implemented joint-space sampling, k-nearest-neighbor roadmap connections, interpolated collision checks along every edge, start and goal attachment, and A* graph search in C++ with ROS 2 and MoveIt.",
+    outcome:
+      "Tuned the sampling density and connection radius to generate a collision-free path through the car-door ingress task in under 10 seconds.",
   },
 ];
 
@@ -610,7 +671,7 @@ export default function Home() {
             <article className="project-card" key={project.id}>
               <button
                 type="button"
-                className={`project-visual ${project.visual}${project.previewVideo ? " has-preview" : ""}`}
+                className={`project-visual ${project.visual}${project.previewVideo || project.previewImage ? " has-preview" : ""}`}
                 onClick={() => setSelectedProject(project)}
                 aria-label={`View details for ${project.title}`}
               >
@@ -618,6 +679,13 @@ export default function Home() {
                   <ProjectPreviewVideo
                     src={project.previewVideo}
                     poster={project.previewPoster}
+                  />
+                ) : null}
+                {project.previewImage ? (
+                  <span
+                    className="project-preview-image"
+                    aria-hidden="true"
+                    style={{ backgroundImage: `url("${project.previewImage}")` }}
                   />
                 ) : null}
                 <span className="visual-topline">

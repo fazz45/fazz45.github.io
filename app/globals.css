@@ -594,7 +594,8 @@ button {
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms ease;
 }
 
-.project-preview-video {
+.project-preview-video,
+.project-preview-image {
   position: absolute;
   z-index: 1;
   inset: 0;
@@ -603,6 +604,9 @@ button {
   height: 100%;
   object-fit: cover;
   background: #0a1828;
+  background-position: center 52%;
+  background-repeat: no-repeat;
+  background-size: cover;
   pointer-events: none;
   transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 300ms ease;
 }
@@ -612,7 +616,8 @@ button {
   box-shadow: 0 24px 50px rgba(9, 23, 35, 0.14);
 }
 
-.project-card:hover .project-preview-video {
+.project-card:hover .project-preview-video,
+.project-card:hover .project-preview-image {
   transform: scale(1.018);
   filter: saturate(1.04) contrast(1.02);
 }
@@ -675,6 +680,19 @@ button {
   background:
     radial-gradient(circle at 68% 50%, rgba(143, 210, 235, 0.42), transparent 12%),
     linear-gradient(135deg, #102b3a, #111a2d 62%, #281d31);
+}
+
+.visual-vla {
+  background:
+    radial-gradient(circle at 69% 48%, rgba(197, 226, 115, 0.4), transparent 11%),
+    radial-gradient(circle at 57% 62%, rgba(113, 185, 230, 0.25), transparent 19%),
+    linear-gradient(135deg, #132d3a, #162038 60%, #2d2135);
+}
+
+.visual-motion-planning {
+  background:
+    radial-gradient(circle at 68% 52%, rgba(184, 230, 107, 0.34), transparent 14%),
+    linear-gradient(135deg, #102b27, #102437 62%, #172031);
 }
 
 .visual-topline {
