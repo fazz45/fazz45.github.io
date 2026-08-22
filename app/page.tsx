@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Project = {
   id: string;
@@ -405,49 +405,135 @@ const filters = [
   "Control",
 ];
 
-function ProjectPreviewVideo({ src, poster }: { src: string; poster: string }) {
+type AutoplayPreviewVideoProps = {
+  className: string;
+  src: string;
+  poster: string;
+  playLabel: string;
+  playControlClassName: string;
+  observeViewport?: boolean;
+  preload?: "none" | "metadata" | "auto";
+  disablePictureInPicture?: boolean;
+};
+
+function AutoplayPreviewVideo({
+  className,
+  src,
+  poster,
+  playLabel,
+  playControlClassName,
+  observeViewport = false,
+  preload = "metadata",
+  disablePictureInPicture = false,
+}: AutoplayPreviewVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const loadFailedRef = useRef(false);
+  const isVisibleRef = useRef(!observeViewport);
+  const [showManualPlay, setShowManualPlay] = useState(false);
+
+  const requestPlayback = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || loadFailedRef.current) return;
+
+    video.muted = true;
+    void video.play().catch((error: unknown) => {
+      const name = error instanceof DOMException ? error.name : "";
+
+      if (name === "AbortError") return;
+
+      if (
+        name === "NotSupportedError" ||
+        video.error ||
+        video.networkState === HTMLMediaElement.NETWORK_NO_SOURCE
+      ) {
+        loadFailedRef.current = true;
+        setShowManualPlay(false);
+        return;
+      }
+
+      setShowManualPlay(true);
+    });
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reducedMotion.matches) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          void video.play().catch(() => {
-            // The poster remains visible if a browser blocks autoplay.
-          });
-        } else {
-          video.pause();
-        }
-      },
-      { rootMargin: "180px 0px", threshold: 0.15 },
-    );
+    const honorMotionPreference = () => {
+      if (loadFailedRef.current) return;
 
-    observer.observe(video);
+      if (reducedMotion.matches) {
+        video.pause();
+        setShowManualPlay(true);
+      } else if (isVisibleRef.current) {
+        requestPlayback();
+      }
+    };
+
+    const observer = observeViewport
+      ? new IntersectionObserver(
+          ([entry]) => {
+            isVisibleRef.current = entry.isIntersecting;
+            if (entry.isIntersecting) {
+              honorMotionPreference();
+            } else {
+              video.pause();
+            }
+          },
+          { rootMargin: "180px 0px", threshold: 0.15 },
+        )
+      : null;
+
+    if (observer) {
+      observer.observe(video);
+    } else {
+      honorMotionPreference();
+    }
+
+    reducedMotion.addEventListener("change", honorMotionPreference);
     return () => {
-      observer.disconnect();
+      observer?.disconnect();
+      reducedMotion.removeEventListener("change", honorMotionPreference);
       video.pause();
     };
-  }, []);
+  }, [observeViewport, requestPlayback]);
+
+  const handleLoadFailure = () => {
+    loadFailedRef.current = true;
+    setShowManualPlay(false);
+  };
 
   return (
-    <video
-      ref={videoRef}
-      className="project-preview-video"
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      poster={poster}
-      aria-hidden="true"
-    >
-      <source src={src} type="video/mp4" />
-    </video>
+    <>
+      <video
+        ref={videoRef}
+        className={className}
+        muted
+        loop
+        playsInline
+        preload={preload}
+        poster={poster}
+        disablePictureInPicture={disablePictureInPicture}
+        onPlaying={() => setShowManualPlay(false)}
+        onError={handleLoadFailure}
+        aria-hidden="true"
+      >
+        <source src={src} type="video/mp4" />
+      </video>
+      {showManualPlay ? (
+        <button
+          type="button"
+          className={`video-play-control ${playControlClassName}`}
+          onClick={requestPlayback}
+          aria-label={playLabel}
+        >
+          <span aria-hidden="true">▶</span>
+          {playLabel}
+        </button>
+      ) : null}
+    </>
   );
 }
 
@@ -552,19 +638,15 @@ export default function Home() {
           src="fazil-lab-hero.png"
           alt="Fazil in a robotics laboratory"
         />
-        <video
+        <AutoplayPreviewVideo
           className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
+          src="Fazil-Cinematic-Hero-Reel-8s.mp4"
           poster="fazil-lab-hero.png"
+          playLabel="Play hero reel"
+          playControlClassName="hero-play-control"
+          preload="auto"
           disablePictureInPicture
-          aria-hidden="true"
-        >
-          <source src="Fazil-Cinematic-Hero-Reel-8s.mp4" type="video/mp4" />
-        </video>
+        />
         <div className="hero-shade" />
         <div className="technical-grid" aria-hidden="true" />
         <div className="hero-coordinate coordinate-a" aria-hidden="true">
@@ -669,16 +751,17 @@ export default function Home() {
         <div className="project-grid" aria-live="polite">
           {visibleProjects.map((project) => (
             <article className="project-card" key={project.id}>
-              <button
-                type="button"
+              <div
                 className={`project-visual ${project.visual}${project.previewVideo || project.previewImage ? " has-preview" : ""}`}
-                onClick={() => setSelectedProject(project)}
-                aria-label={`View details for ${project.title}`}
               >
                 {project.previewVideo && project.previewPoster ? (
-                  <ProjectPreviewVideo
+                  <AutoplayPreviewVideo
+                    className="project-preview-video"
                     src={project.previewVideo}
                     poster={project.previewPoster}
+                    playLabel="Play preview"
+                    playControlClassName="project-play-control"
+                    observeViewport
                   />
                 ) : null}
                 {project.previewImage ? (
@@ -702,7 +785,13 @@ export default function Home() {
                   <b>{project.metric}</b>
                   <em>{project.metricLabel}</em>
                 </span>
-              </button>
+                <button
+                  type="button"
+                  className="project-details-trigger"
+                  onClick={() => setSelectedProject(project)}
+                  aria-label={`View details for ${project.title}`}
+                />
+              </div>
               <div className="project-copy">
                 <div className="project-meta">
                   <span>{project.eyebrow}</span>

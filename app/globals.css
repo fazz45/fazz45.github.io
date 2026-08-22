@@ -224,6 +224,50 @@ button {
   pointer-events: none;
 }
 
+.video-play-control {
+  position: absolute;
+  z-index: 7;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 17px;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background: rgba(7, 17, 31, 0.82);
+  color: var(--white);
+  box-shadow: 0 12px 30px rgba(3, 10, 17, 0.24);
+  backdrop-filter: blur(12px) saturate(120%);
+  cursor: pointer;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.video-play-control span {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.video-play-control:hover {
+  border-color: var(--white);
+  background: var(--white);
+  color: var(--ink);
+}
+
+.hero-play-control {
+  right: clamp(24px, 7vw, 118px);
+  bottom: 82px;
+  z-index: 4;
+}
+
+.hero-play-control:hover {
+  transform: translateY(-2px);
+}
+
 .hero-shade {
   background:
     linear-gradient(90deg, rgba(3, 9, 17, 0.98) 0%, rgba(3, 9, 17, 0.92) 27%, rgba(3, 9, 17, 0.52) 49%, rgba(3, 9, 17, 0.06) 72%),
@@ -592,6 +636,32 @@ button {
   cursor: pointer;
   text-align: left;
   transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms ease;
+}
+
+.project-details-trigger {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.project-details-trigger:focus-visible {
+  outline-offset: -4px;
+}
+
+.project-play-control {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.project-play-control:hover {
+  transform: translate(-50%, calc(-50% - 2px));
 }
 
 .project-preview-video,
@@ -1696,6 +1766,12 @@ footer a:hover {
     display: none;
   }
 
+  .hero-play-control {
+    top: calc(55% - 78px);
+    right: 24px;
+    bottom: auto;
+  }
+
   .section-heading,
   .about-grid {
     grid-template-columns: 1fr;
@@ -1763,6 +1839,11 @@ footer a:hover {
   .hero-video {
     height: 44%;
     object-position: 51% 38%;
+  }
+
+  .hero-play-control {
+    top: calc(44% - 68px);
+    right: 20px;
   }
 
   .hero-shade {
@@ -1977,10 +2058,6 @@ footer a:hover {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  .hero-video {
-    display: none;
   }
 
   *,

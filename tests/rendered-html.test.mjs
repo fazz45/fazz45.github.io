@@ -65,6 +65,7 @@ test("server-renders the finished portfolio", async () => {
   assert.match(html, /visual-servoing-preview\.mp4/);
   assert.match(html, /vla-kitting-preview\.mp4/);
   assert.match(html, /motion-planning-preview\.png/);
+  assert.match(html, /project-details-trigger/);
   assert.match(html, /https:\/\/github\.com\/dghiya\/TB4_Project/);
   assert.match(html, /https:\/\/github\.com\/fazz45\/jhu_rl_project/);
   assert.match(html, /https:\/\/github\.com\/fazz45\/cv-project-f24/);
@@ -117,13 +118,20 @@ test("ships the essential static portfolio assets", async () => {
   assert.match(page, /fazil-lab-hero\.png/);
   assert.match(page, /Fazil-Cinematic-Hero-Reel-8s\.mp4/);
   assert.match(page, /className="hero-video"/);
-  assert.match(page, /autoPlay/);
+  assert.match(page, /AutoplayPreviewVideo/);
+  assert.match(page, /Play hero reel/);
+  assert.match(page, /Play preview/);
+  assert.match(page, /requestPlayback/);
+  assert.match(page, /NotSupportedError/);
+  assert.match(page, /onPlaying/);
+  assert.match(page, /onError/);
+  assert.doesNotMatch(page, /Preview unavailable/i);
   assert.match(page, /playsInline/);
   assert.match(page, /1Xfcm2-whCf2Rt7ppVJ08lyZXPTzhVLE3/);
   assert.match(page, /aria-modal="true"/);
   assert.match(page, /selectedExperience/);
-  assert.match(page, /ProjectPreviewVideo/);
   assert.match(page, /IntersectionObserver/);
+  assert.match(page, /className="project-details-trigger"/);
   const projectModal = page.slice(
     page.indexOf("{selectedProject &&"),
     page.indexOf("{selectedExperience &&"),
@@ -133,6 +141,8 @@ test("ships the essential static portfolio assets", async () => {
   assert.match(styles, /\.hero-credentials/);
   assert.match(styles, /\.project-preview-video/);
   assert.match(styles, /\.project-preview-image/);
+  assert.match(styles, /\.video-play-control/);
+  assert.match(styles, /\.project-details-trigger/);
   assert.match(styles, /\.repository-link/);
   assert.match(styles, /\.visual-servoing/);
   assert.match(styles, /\.visual-vla/);
